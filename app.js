@@ -80,7 +80,7 @@ async function openConfigDialog(dashboard) {
     const result = await tableau.extensions.ui.displayDialogAsync(
       dialogUrl,
       JSON.stringify(config),
-      { height: 520, width: 380 }
+      { height: 560, width: 720 }
     );
     if (result) {
       const newConfig = JSON.parse(result);

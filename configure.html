@@ -10,58 +10,77 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #f7f7f7;
       color: #222;
-      padding: 20px;
       font-size: 13px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
     }
 
-    h2 {
+    header {
+      padding: 14px 20px 10px;
+      border-bottom: 1px solid #e5e5e5;
+      background: #fff;
+    }
+
+    header h2 {
       font-size: 15px;
       font-weight: 600;
-      margin-bottom: 16px;
       color: #111;
     }
+
+    .body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 14px 20px;
+      overflow: hidden;
+    }
+
+    .col { display: flex; flex-direction: column; gap: 10px; }
 
     .section {
       background: #fff;
       border: 1px solid #e5e5e5;
       border-radius: 8px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .section-title {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: #888;
-      margin-bottom: 2px;
+      color: #999;
     }
 
     .row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 8px;
     }
 
-    .row label { color: #555; flex: 1; }
+    .row label { color: #555; flex: 1; white-space: nowrap; }
 
     select {
-      width: 100%;
-      padding: 7px 8px;
+      padding: 5px 6px;
       border: 1px solid #ddd;
       border-radius: 6px;
-      font-size: 13px;
+      font-size: 12px;
       background: #fff;
+      width: 100%;
     }
 
+    .row select { flex: 1.4; width: auto; }
+
     input[type=color] {
-      width: 36px;
-      height: 28px;
+      width: 32px;
+      height: 26px;
       border: 1px solid #ddd;
       border-radius: 4px;
       padding: 1px 2px;
@@ -71,43 +90,57 @@
     .range-row {
       display: flex;
       align-items: center;
-      gap: 8px;
-      flex: 1.5;
+      gap: 6px;
+      flex: 1.4;
     }
 
     input[type=range] { flex: 1; }
 
     .range-val {
-      font-size: 12px;
+      font-size: 11px;
       color: #666;
-      min-width: 28px;
+      min-width: 24px;
       text-align: right;
     }
 
     .preview-area {
-      padding: 12px;
+      padding: 10px;
       background: #f0f0f0;
       border-radius: 6px;
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
       align-items: center;
+      min-height: 44px;
     }
 
-    .preview-btn {
-      border: 1px solid #ccc;
-      cursor: default;
+    .preview-btn { border: 1px solid #ccc; cursor: default; }
+
+    textarea {
+      width: 100%;
+      font-size: 10px;
+      font-family: monospace;
+      padding: 6px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      resize: none;
+      height: 48px;
     }
 
-    .actions {
+    footer {
+      padding: 10px 20px;
+      border-top: 1px solid #e5e5e5;
+      background: #fff;
       display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 8px;
-      justify-content: flex-end;
-      margin-top: 4px;
     }
+
+    .footer-left { display: flex; gap: 6px; align-items: center; }
 
     button {
-      padding: 8px 18px;
+      padding: 7px 16px;
       border-radius: 6px;
       font-size: 13px;
       cursor: pointer;
@@ -116,110 +149,115 @@
       color: #333;
     }
 
-    button.primary {
-      background: #E8622A;
-      color: #fff;
-      border-color: #E8622A;
-    }
-
+    button.primary { background: #E8622A; color: #fff; border-color: #E8622A; }
     button.primary:hover { background: #cf5522; }
+    button.sm { padding: 5px 12px; font-size: 12px; }
 
-    #no-params {
-      color: #e05; font-style: italic; font-size: 12px;
-    }
+    #clipboard-msg { font-size: 11px; color: #888; }
+    #no-params { color: #e05; font-style: italic; font-size: 12px; }
   </style>
 </head>
 <body>
-  <h2>Configuration des boutons</h2>
 
-  <div class="section">
-    <div class="section-title">Paramètre Tableau</div>
-    <select id="cfg-param"></select>
-    <p id="no-params" class="hidden"></p>
-  </div>
+  <header><h2>Configuration des boutons</h2></header>
 
-  <div class="section">
-    <div class="section-title">Aperçu</div>
-    <div class="preview-area" id="preview">
-      <button class="preview-btn" id="prev-active">Valeur A</button>
-      <button class="preview-btn" id="prev-inactive">Valeur B</button>
-    </div>
-  </div>
+  <div class="body">
+    <div class="col">
+      <div class="section">
+        <div class="section-title">Paramètre Tableau</div>
+        <select id="cfg-param"></select>
+        <p id="no-params"></p>
+      </div>
 
-  <div class="section">
-    <div class="section-title">Couleurs</div>
-    <div class="row"><label>Fond du conteneur</label><input type="color" id="cfg-container-bg" /></div>
-    <div class="row"><label>Fond actif</label><input type="color" id="cfg-active-bg" /></div>
-    <div class="row"><label>Texte actif</label><input type="color" id="cfg-active-color" /></div>
-    <div class="row"><label>Fond inactif</label><input type="color" id="cfg-inactive-bg" /></div>
-    <div class="row"><label>Texte inactif</label><input type="color" id="cfg-inactive-color" /></div>
-  </div>
+      <div class="section">
+        <div class="section-title">Couleurs</div>
+        <div class="row"><label>Fond conteneur</label><input type="color" id="cfg-container-bg" /></div>
+        <div class="row"><label>Fond actif</label><input type="color" id="cfg-active-bg" /></div>
+        <div class="row"><label>Texte actif</label><input type="color" id="cfg-active-color" /></div>
+        <div class="row"><label>Fond inactif</label><input type="color" id="cfg-inactive-bg" /></div>
+        <div class="row"><label>Texte inactif</label><input type="color" id="cfg-inactive-color" /></div>
+      </div>
 
-  <div class="section">
-    <div class="section-title">Mise en forme</div>
-    <div class="row">
-      <label>Rayon coins (px)</label>
-      <div class="range-row">
-        <input type="range" id="cfg-radius" min="0" max="50" />
-        <span class="range-val" id="cfg-radius-val"></span>
+      <div class="section">
+        <div class="section-title">Copier / Coller</div>
+        <textarea id="cfg-clipboard" placeholder="Zone d'export/import..."></textarea>
+        <div class="row" style="gap:6px;">
+          <button id="btn-copy" class="sm" style="flex:1;">↑ Exporter</button>
+          <button id="btn-paste" class="sm" style="flex:1;">↓ Importer</button>
+        </div>
+        <span id="clipboard-msg"></span>
       </div>
     </div>
-    <div class="row">
-      <label>Police</label>
-      <select id="cfg-font-family" style="flex:1.5;">
-        <option value="Tableau Book">Tableau Book</option>
-        <option value="Tableau Light">Tableau Light</option>
-        <option value="Tableau Medium">Tableau Medium</option>
-        <option value="Tableau Bold">Tableau Bold</option>
-        <option value="Arial, sans-serif">Arial</option>
-        <option value="Georgia, serif">Georgia</option>
-        <option value="'Courier New', monospace">Courier New</option>
-      </select>
-    </div>
-    <div class="row">
-      <label>Taille police (px)</label>
-      <div class="range-row">
-        <input type="range" id="cfg-font-size" min="10" max="24" />
-        <span class="range-val" id="cfg-font-size-val"></span>
+
+    <div class="col">
+      <div class="section">
+        <div class="section-title">Aperçu</div>
+        <div class="preview-area" id="preview">
+          <button class="preview-btn" id="prev-active">Valeur A</button>
+          <button class="preview-btn" id="prev-inactive">Valeur B</button>
+        </div>
       </div>
-    </div>
-    <div class="row">
-      <label>Espacement (px)</label>
-      <div class="range-row">
-        <input type="range" id="cfg-gap" min="2" max="20" />
-        <span class="range-val" id="cfg-gap-val"></span>
-      </div>
-    </div>
-    <div class="row">
-      <label>Padding horizontal (px)</label>
-      <div class="range-row">
-        <input type="range" id="cfg-pad-h" min="4" max="40" />
-        <span class="range-val" id="cfg-pad-h-val"></span>
-      </div>
-    </div>
-    <div class="row">
-      <label>Padding vertical (px)</label>
-      <div class="range-row">
-        <input type="range" id="cfg-pad-v" min="2" max="20" />
-        <span class="range-val" id="cfg-pad-v-val"></span>
+
+      <div class="section">
+        <div class="section-title">Mise en forme</div>
+        <div class="row">
+          <label>Police</label>
+          <select id="cfg-font-family">
+            <option value="Tableau Book">Tableau Book</option>
+            <option value="Tableau Light">Tableau Light</option>
+            <option value="Tableau Medium">Tableau Medium</option>
+            <option value="Tableau Bold">Tableau Bold</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="Georgia, serif">Georgia</option>
+            <option value="'Courier New', monospace">Courier New</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>Taille police</label>
+          <div class="range-row">
+            <input type="range" id="cfg-font-size" min="10" max="24" />
+            <span class="range-val" id="cfg-font-size-val"></span>
+          </div>
+        </div>
+        <div class="row">
+          <label>Rayon coins</label>
+          <div class="range-row">
+            <input type="range" id="cfg-radius" min="0" max="50" />
+            <span class="range-val" id="cfg-radius-val"></span>
+          </div>
+        </div>
+        <div class="row">
+          <label>Espacement</label>
+          <div class="range-row">
+            <input type="range" id="cfg-gap" min="2" max="20" />
+            <span class="range-val" id="cfg-gap-val"></span>
+          </div>
+        </div>
+        <div class="row">
+          <label>Padding horizontal</label>
+          <div class="range-row">
+            <input type="range" id="cfg-pad-h" min="4" max="40" />
+            <span class="range-val" id="cfg-pad-h-val"></span>
+          </div>
+        </div>
+        <div class="row">
+          <label>Padding vertical</label>
+          <div class="range-row">
+            <input type="range" id="cfg-pad-v" min="2" max="20" />
+            <span class="range-val" id="cfg-pad-v-val"></span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="section">
-    <div class="section-title">Copier / Coller la configuration</div>
-    <textarea id="cfg-clipboard" rows="3" style="width:100%;font-size:11px;font-family:monospace;padding:6px;border:1px solid #ddd;border-radius:6px;resize:vertical;"></textarea>
-    <div class="row" style="gap:8px;margin-top:6px;">
-      <button id="btn-copy" style="flex:1;">↑ Exporter</button>
-      <button id="btn-paste" style="flex:1;">↓ Importer</button>
+  <footer>
+    <div class="footer-left"></div>
+    <div style="display:flex;gap:8px;">
+      <button id="btn-cancel">Annuler</button>
+      <button id="btn-save" class="primary">Enregistrer</button>
     </div>
-    <p id="clipboard-msg" style="font-size:11px;color:#888;min-height:14px;margin-top:4px;"></p>
-  </div>
-
-  <div class="actions">
-    <button id="btn-cancel">Annuler</button>
-    <button id="btn-save" class="primary">Enregistrer</button>
-  </div>
+  </footer>
 
   <script src="tableau.extensions.1.latest.js"></script>
   <script>
@@ -252,14 +290,15 @@
       const shared = {
         borderRadius: r.radius + 'px',
         fontSize: r.fontSize + 'px',
+        fontFamily: r.fontFamily,
         padding: `${r.padV}px ${r.padH}px`,
         border: '1px solid #ccc',
         cursor: 'default',
       };
       const active = document.getElementById('prev-active');
       const inactive = document.getElementById('prev-inactive');
-      Object.assign(active.style, shared, { background: r.activeBg, color: r.activeColor, borderColor: 'transparent', fontFamily: r.fontFamily });
-      Object.assign(inactive.style, shared, { background: r.inactiveBg, color: r.inactiveColor, fontFamily: r.fontFamily });
+      Object.assign(active.style, shared, { background: r.activeBg, color: r.activeColor, borderColor: 'transparent' });
+      Object.assign(inactive.style, shared, { background: r.inactiveBg, color: r.inactiveColor });
       document.getElementById('preview').style.gap = r.gap + 'px';
     }
 
@@ -271,7 +310,7 @@
     }
 
     document.getElementById('cfg-font-family').addEventListener('change', updatePreview);
-    ['cfg-active-bg','cfg-active-color','cfg-inactive-bg','cfg-inactive-color'].forEach(id => {
+    ['cfg-active-bg','cfg-active-color','cfg-inactive-bg','cfg-inactive-color','cfg-container-bg'].forEach(id => {
       document.getElementById(id).addEventListener('input', updatePreview);
     });
 
@@ -291,7 +330,7 @@
       document.getElementById('cfg-inactive-bg').value = config.inactiveBg || '#ffffff';
       document.getElementById('cfg-inactive-color').value = config.inactiveColor || '#333333';
       setRange('cfg-radius', 'cfg-radius-val', config.radius ?? 50);
-      setRange('cfg-font-size', 'cfg-font-size-val', config.fontSize ?? 14);
+      setRange('cfg-font-size', 'cfg-font-size-val', config.fontSize ?? 12);
       setRange('cfg-gap', 'cfg-gap-val', config.gap ?? 6);
       setRange('cfg-pad-h', 'cfg-pad-h-val', config.padH ?? 18);
       setRange('cfg-pad-v', 'cfg-pad-v-val', config.padV ?? 6);
@@ -300,10 +339,8 @@
       dashboard.getParametersAsync().then(params => {
         const listParams = params.filter(p => p.allowableValues?.type === 'list');
         const select = document.getElementById('cfg-param');
-
         if (listParams.length === 0) {
-          document.getElementById('no-params').textContent = 'Aucun paramètre de type liste trouvé dans ce dashboard.';
-          document.getElementById('no-params').classList.remove('hidden');
+          document.getElementById('no-params').textContent = 'Aucun paramètre de type liste trouvé.';
         } else {
           listParams.forEach(p => {
             const opt = document.createElement('option');
@@ -319,26 +356,15 @@
 
     const clipboardMsg = document.getElementById('clipboard-msg');
 
-    function copyToClipboard(text) {
-      const ta = document.createElement('textarea');
-      ta.value = text;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.focus();
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
-
     function applyPasted(pasted) {
-      const allowed = ['containerBg','activeBg','activeColor','inactiveBg','inactiveColor','radius','fontSize','gap','padH','padV'];
+      const allowed = ['containerBg','activeBg','activeColor','inactiveBg','inactiveColor','fontFamily','radius','fontSize','gap','padH','padV'];
       if (!allowed.some(k => k in pasted)) return false;
       if (pasted.containerBg) document.getElementById('cfg-container-bg').value = pasted.containerBg;
       if (pasted.activeBg) document.getElementById('cfg-active-bg').value = pasted.activeBg;
       if (pasted.activeColor) document.getElementById('cfg-active-color').value = pasted.activeColor;
       if (pasted.inactiveBg) document.getElementById('cfg-inactive-bg').value = pasted.inactiveBg;
       if (pasted.inactiveColor) document.getElementById('cfg-inactive-color').value = pasted.inactiveColor;
+      if (pasted.fontFamily) document.getElementById('cfg-font-family').value = pasted.fontFamily;
       if (pasted.radius != null) setRange('cfg-radius', 'cfg-radius-val', pasted.radius);
       if (pasted.fontSize != null) setRange('cfg-font-size', 'cfg-font-size-val', pasted.fontSize);
       if (pasted.gap != null) setRange('cfg-gap', 'cfg-gap-val', pasted.gap);
@@ -355,16 +381,16 @@
       ta.value = JSON.stringify(styleOnly);
       ta.select();
       document.execCommand('copy');
-      clipboardMsg.textContent = 'Copié ! Collez dans la zone d\'une autre extension.';
+      clipboardMsg.textContent = 'Copié !';
     });
 
     document.getElementById('btn-paste').addEventListener('click', () => {
       const text = document.getElementById('cfg-clipboard').value.trim();
-      if (!text) { clipboardMsg.textContent = 'Collez d\'abord une config dans la zone de texte.'; return; }
+      if (!text) { clipboardMsg.textContent = 'Collez d\'abord une config.'; return; }
       try {
         const pasted = JSON.parse(text);
         if (applyPasted(pasted)) {
-          clipboardMsg.textContent = 'Importé. Cliquez Enregistrer pour confirmer.';
+          clipboardMsg.textContent = 'Importé — cliquez Enregistrer.';
         } else {
           clipboardMsg.textContent = 'Contenu invalide.';
         }
