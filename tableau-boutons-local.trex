@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest manifest-version="0.1" xmlns="http://www.tableau.com/xml/extension_manifest">
+  <dashboard-extension id="com.dev.tableau-boutons-local" extension-version="1.0.0">
+    <default-locale>fr_FR</default-locale>
+    <name>Boutons Paramètres (local)</name>
+    <description>Boutons pour modifier les paramètres Tableau</description>
+    <author name="Dev" email="dev@dev.com" organization="Dev" website="https://github.com/Fmessain/tableau-boutons"/>
+    <min-api-version>1.0</min-api-version>
+    <source-location>
+      <url>http://localhost:8080/index.html</url>
+    </source-location>
+    <icon>iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4wEcCx43RRpCMgAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAAAI0lEQVQ4y2NgGAWDHvz//5+BgYGBiYGBgYmBgYGJgYGBCQAIwAABHgBtKQAAAABJRU5ErkJggg==</icon>
+    <context-menu>
+      <configure-context-menu-item />
+    </context-menu>
+  </dashboard-extension>
+</manifest>
