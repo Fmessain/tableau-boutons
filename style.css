@@ -23,8 +23,12 @@ body {
 .tab-btn {
   border: 1px solid #ccc;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
+
+.tab-btn:focus { outline: none; }
+.tab-btn:active { opacity: 1; filter: none; }
 
 .tab-btn.active {
   border-color: transparent;

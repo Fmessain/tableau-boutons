@@ -164,9 +164,23 @@
   <div class="body">
     <div class="col">
       <div class="section">
-        <div class="section-title">Paramètre Tableau</div>
-        <select id="cfg-param"></select>
-        <p id="no-params"></p>
+        <div class="section-title">Source</div>
+        <div class="row" style="gap:12px;">
+          <label style="flex:none;gap:4px;display:flex;align-items:center;"><input type="radio" name="mode" value="param" id="mode-param"> Paramètre</label>
+          <label style="flex:none;gap:4px;display:flex;align-items:center;"><input type="radio" name="mode" value="filter" id="mode-filter"> Filtre</label>
+        </div>
+        <div id="param-section">
+          <select id="cfg-param"></select>
+          <p id="no-params"></p>
+        </div>
+        <div id="filter-section" style="display:none;">
+          <label style="font-size:12px;color:#555;display:block;margin-bottom:4px;">Filtre catégoriel</label>
+          <select id="cfg-filter"></select>
+          <label style="flex:none;gap:6px;display:flex;align-items:center;margin-top:6px;font-size:12px;color:#555;">
+            <input type="checkbox" id="cfg-multi-select"> Sélection multiple
+          </label>
+          <p id="no-filters" style="color:#e05;font-style:italic;font-size:12px;"></p>
+        </div>
       </div>
 
       <div class="section">
@@ -268,9 +282,27 @@
       document.getElementById(valId).textContent = value;
     }
 
+    function getMode() {
+      return document.querySelector('input[name="mode"]:checked')?.value || 'param';
+    }
+
+    function setMode(mode) {
+      document.getElementById('mode-' + mode).checked = true;
+      document.getElementById('param-section').style.display = mode === 'param' ? '' : 'none';
+      document.getElementById('filter-section').style.display = mode === 'filter' ? '' : 'none';
+    }
+
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener('change', () => setMode(getMode()));
+    });
+
     function readConfig() {
+      const mode = getMode();
       return {
-        paramName: document.getElementById('cfg-param').value || null,
+        mode,
+        paramName: mode === 'param' ? (document.getElementById('cfg-param').value || null) : null,
+        filterName: mode === 'filter' ? (document.getElementById('cfg-filter').value || null) : null,
+        multiSelect: mode === 'filter' ? document.getElementById('cfg-multi-select').checked : false,
         containerBg: document.getElementById('cfg-container-bg').value,
         activeBg: document.getElementById('cfg-active-bg').value,
         activeColor: document.getElementById('cfg-active-color').value,
@@ -320,7 +352,7 @@
     bindRange('cfg-pad-h', 'cfg-pad-h-val');
     bindRange('cfg-pad-v', 'cfg-pad-v-val');
 
-    tableau.extensions.initializeDialogAsync().then(savedPayload => {
+    tableau.extensions.initializeDialogAsync().then(async savedPayload => {
       try { config = JSON.parse(savedPayload); } catch (e) { config = {}; }
 
       document.getElementById('cfg-container-bg').value = config.containerBg || '#ffffff';
@@ -334,24 +366,57 @@
       setRange('cfg-gap', 'cfg-gap-val', config.gap ?? 6);
       setRange('cfg-pad-h', 'cfg-pad-h-val', config.padH ?? 18);
       setRange('cfg-pad-v', 'cfg-pad-v-val', config.padV ?? 6);
+      setMode(config.mode || 'param');
+      document.getElementById('cfg-multi-select').checked = config.multiSelect || false;
 
       const dashboard = tableau.extensions.dashboardContent.dashboard;
-      dashboard.getParametersAsync().then(params => {
-        const listParams = params.filter(p => p.allowableValues?.type === 'list');
-        const select = document.getElementById('cfg-param');
-        if (listParams.length === 0) {
-          document.getElementById('no-params').textContent = 'Aucun paramètre de type liste trouvé.';
-        } else {
-          listParams.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p.name;
-            opt.textContent = p.name;
-            if (p.name === config.paramName) opt.selected = true;
-            select.appendChild(opt);
+
+      // Paramètres
+      const params = await dashboard.getParametersAsync();
+      const listParams = params.filter(p => p.allowableValues?.type === 'list');
+      const selectParam = document.getElementById('cfg-param');
+      if (listParams.length === 0) {
+        document.getElementById('no-params').textContent = 'Aucun paramètre de type liste trouvé.';
+      } else {
+        listParams.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.name;
+          opt.textContent = p.name;
+          if (p.name === config.paramName) opt.selected = true;
+          selectParam.appendChild(opt);
+        });
+      }
+
+      // Filtres
+      const selectFilter = document.getElementById('cfg-filter');
+      const noFiltersEl = document.getElementById('no-filters');
+      noFiltersEl.style.fontSize = '10px';
+      try {
+        const filterNames = new Set();
+        const sheets = dashboard.worksheets;
+        noFiltersEl.textContent = `${sheets.length} sheet(s) trouvée(s)...`;
+        for (const ws of sheets) {
+          const filters = await ws.getFiltersAsync();
+          noFiltersEl.textContent += ` | ${ws.name}: ${filters.length} filtre(s)`;
+          filters.forEach(f => {
+            if (f.filterType === 'categorical') filterNames.add(f.fieldName);
           });
         }
-        updatePreview();
-      });
+        if (filterNames.size > 0) {
+          noFiltersEl.textContent = '';
+          filterNames.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            if (name === config.filterName) opt.selected = true;
+            selectFilter.appendChild(opt);
+          });
+        }
+      } catch(err) {
+        noFiltersEl.textContent = 'Erreur: ' + (err.message || JSON.stringify(err));
+      }
+
+      updatePreview();
     });
 
     const clipboardMsg = document.getElementById('clipboard-msg');
@@ -377,6 +442,8 @@
     document.getElementById('btn-copy').addEventListener('click', () => {
       const styleOnly = { ...readConfig() };
       delete styleOnly.paramName;
+      delete styleOnly.filterName;
+      delete styleOnly.mode;
       const ta = document.getElementById('cfg-clipboard');
       ta.value = JSON.stringify(styleOnly);
       ta.select();
