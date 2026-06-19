@@ -303,40 +303,54 @@
 
     const clipboardMsg = document.getElementById('clipboard-msg');
 
-    document.getElementById('btn-copy').addEventListener('click', async () => {
+    function copyToClipboard(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+
+    function applyPasted(pasted) {
+      const allowed = ['containerBg','activeBg','activeColor','inactiveBg','inactiveColor','radius','fontSize','gap','padH','padV'];
+      if (!allowed.some(k => k in pasted)) return false;
+      if (pasted.containerBg) document.getElementById('cfg-container-bg').value = pasted.containerBg;
+      if (pasted.activeBg) document.getElementById('cfg-active-bg').value = pasted.activeBg;
+      if (pasted.activeColor) document.getElementById('cfg-active-color').value = pasted.activeColor;
+      if (pasted.inactiveBg) document.getElementById('cfg-inactive-bg').value = pasted.inactiveBg;
+      if (pasted.inactiveColor) document.getElementById('cfg-inactive-color').value = pasted.inactiveColor;
+      if (pasted.radius != null) setRange('cfg-radius', 'cfg-radius-val', pasted.radius);
+      if (pasted.fontSize != null) setRange('cfg-font-size', 'cfg-font-size-val', pasted.fontSize);
+      if (pasted.gap != null) setRange('cfg-gap', 'cfg-gap-val', pasted.gap);
+      if (pasted.padH != null) setRange('cfg-pad-h', 'cfg-pad-h-val', pasted.padH);
+      if (pasted.padV != null) setRange('cfg-pad-v', 'cfg-pad-v-val', pasted.padV);
+      updatePreview();
+      return true;
+    }
+
+    document.getElementById('btn-copy').addEventListener('click', () => {
       const styleOnly = { ...readConfig() };
       delete styleOnly.paramName;
-      try {
-        await navigator.clipboard.writeText(JSON.stringify(styleOnly));
-        clipboardMsg.textContent = 'Style copié dans le presse-papier.';
-      } catch (e) {
-        clipboardMsg.textContent = 'Erreur : presse-papier inaccessible.';
-      }
+      copyToClipboard(JSON.stringify(styleOnly));
+      clipboardMsg.textContent = 'Style copié. Collez-le dans une autre extension.';
     });
 
-    document.getElementById('btn-paste').addEventListener('click', async () => {
+    document.getElementById('btn-paste').addEventListener('click', () => {
+      const text = prompt('Collez la configuration ici :');
+      if (!text) return;
       try {
-        const text = await navigator.clipboard.readText();
         const pasted = JSON.parse(text);
-        const allowed = ['containerBg','activeBg','activeColor','inactiveBg','inactiveColor','radius','fontSize','gap','padH','padV'];
-        const isValid = allowed.some(k => k in pasted);
-        if (!isValid) { clipboardMsg.textContent = 'Contenu invalide.'; return; }
-
-        if (pasted.containerBg) document.getElementById('cfg-container-bg').value = pasted.containerBg;
-        if (pasted.activeBg) document.getElementById('cfg-active-bg').value = pasted.activeBg;
-        if (pasted.activeColor) document.getElementById('cfg-active-color').value = pasted.activeColor;
-        if (pasted.inactiveBg) document.getElementById('cfg-inactive-bg').value = pasted.inactiveBg;
-        if (pasted.inactiveColor) document.getElementById('cfg-inactive-color').value = pasted.inactiveColor;
-        if (pasted.radius != null) setRange('cfg-radius', 'cfg-radius-val', pasted.radius);
-        if (pasted.fontSize != null) setRange('cfg-font-size', 'cfg-font-size-val', pasted.fontSize);
-        if (pasted.gap != null) setRange('cfg-gap', 'cfg-gap-val', pasted.gap);
-        if (pasted.padH != null) setRange('cfg-pad-h', 'cfg-pad-h-val', pasted.padH);
-        if (pasted.padV != null) setRange('cfg-pad-v', 'cfg-pad-v-val', pasted.padV);
-
-        updatePreview();
-        clipboardMsg.textContent = 'Style collé. Cliquez Enregistrer pour appliquer.';
+        if (applyPasted(pasted)) {
+          clipboardMsg.textContent = 'Style appliqué. Cliquez Enregistrer pour confirmer.';
+        } else {
+          clipboardMsg.textContent = 'Contenu invalide.';
+        }
       } catch (e) {
-        clipboardMsg.textContent = 'Erreur : presse-papier inaccessible ou contenu invalide.';
+        clipboardMsg.textContent = 'Format invalide.';
       }
     });
 
