@@ -1,13 +1,77 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <title>Boutons Tableau</title>
+  <meta charset="UTF-8" />
+  <title>Boutons Paramètre</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div id="boutons"></div>
+  <div id="main-view">
+    <div id="btn-group"><span id="status" style="font-size:12px;color:#888;">Chargement...</span></div>
+  </div>
 
-<script src="tableau.extensions.1.latest.js"></script>
-<script src="app.js"></script>
+  <div id="config-overlay" class="hidden">
+    <div id="config-panel">
+      <h3>Configuration</h3>
+
+      <label>Paramètre Tableau
+        <select id="cfg-param"></select>
+      </label>
+
+      <fieldset>
+        <legend>Bouton actif</legend>
+        <label>Fond <input type="color" id="cfg-active-bg" /></label>
+        <label>Texte <input type="color" id="cfg-active-color" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Bouton inactif</legend>
+        <label>Fond <input type="color" id="cfg-inactive-bg" /></label>
+        <label>Texte <input type="color" id="cfg-inactive-color" /></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Mise en forme</legend>
+        <label>Rayon coins (px)
+          <div class="range-row">
+            <input type="range" id="cfg-radius" min="0" max="50" />
+            <span id="cfg-radius-val"></span>
+          </div>
+        </label>
+        <label>Taille police (px)
+          <div class="range-row">
+            <input type="range" id="cfg-font-size" min="10" max="24" />
+            <span id="cfg-font-size-val"></span>
+          </div>
+        </label>
+        <label>Espacement boutons (px)
+          <div class="range-row">
+            <input type="range" id="cfg-gap" min="2" max="20" />
+            <span id="cfg-gap-val"></span>
+          </div>
+        </label>
+        <label>Padding H (px)
+          <div class="range-row">
+            <input type="range" id="cfg-pad-h" min="4" max="40" />
+            <span id="cfg-pad-h-val"></span>
+          </div>
+        </label>
+        <label>Padding V (px)
+          <div class="range-row">
+            <input type="range" id="cfg-pad-v" min="2" max="20" />
+            <span id="cfg-pad-v-val"></span>
+          </div>
+        </label>
+      </fieldset>
+
+      <div id="config-actions">
+        <button id="cfg-cancel">Annuler</button>
+        <button id="cfg-save" class="primary">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="tableau.extensions.1.latest.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

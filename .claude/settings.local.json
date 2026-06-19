@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(gh auth *)",
-      "PowerShell(gh auth status 2>&1)"
+      "PowerShell(gh auth status 2>&1)",
+      "mcp__visualize__read_me",
+      "mcp__visualize__show_widget",
+      "PowerShell(\\(Get-Item \"C:\\\\Users\\\\fabie\\\\IdeaProjects\\\\tableau-boutons\\\\tableau.extensions.1.latest.js\"\\).Length)",
+      "WebSearch"
     ]
   }
 }
