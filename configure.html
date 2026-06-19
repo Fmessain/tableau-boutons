@@ -165,6 +165,18 @@
       </div>
     </div>
     <div class="row">
+      <label>Police</label>
+      <select id="cfg-font-family" style="flex:1.5;">
+        <option value="Tableau Book">Tableau Book</option>
+        <option value="Tableau Light">Tableau Light</option>
+        <option value="Tableau Medium">Tableau Medium</option>
+        <option value="Tableau Bold">Tableau Bold</option>
+        <option value="Arial, sans-serif">Arial</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'Courier New', monospace">Courier New</option>
+      </select>
+    </div>
+    <div class="row">
       <label>Taille police (px)</label>
       <div class="range-row">
         <input type="range" id="cfg-font-size" min="10" max="24" />
@@ -226,6 +238,7 @@
         activeColor: document.getElementById('cfg-active-color').value,
         inactiveBg: document.getElementById('cfg-inactive-bg').value,
         inactiveColor: document.getElementById('cfg-inactive-color').value,
+        fontFamily: document.getElementById('cfg-font-family').value,
         radius: +document.getElementById('cfg-radius').value,
         fontSize: +document.getElementById('cfg-font-size').value,
         gap: +document.getElementById('cfg-gap').value,
@@ -245,8 +258,8 @@
       };
       const active = document.getElementById('prev-active');
       const inactive = document.getElementById('prev-inactive');
-      Object.assign(active.style, shared, { background: r.activeBg, color: r.activeColor, borderColor: 'transparent' });
-      Object.assign(inactive.style, shared, { background: r.inactiveBg, color: r.inactiveColor });
+      Object.assign(active.style, shared, { background: r.activeBg, color: r.activeColor, borderColor: 'transparent', fontFamily: r.fontFamily });
+      Object.assign(inactive.style, shared, { background: r.inactiveBg, color: r.inactiveColor, fontFamily: r.fontFamily });
       document.getElementById('preview').style.gap = r.gap + 'px';
     }
 
@@ -257,6 +270,7 @@
       });
     }
 
+    document.getElementById('cfg-font-family').addEventListener('change', updatePreview);
     ['cfg-active-bg','cfg-active-color','cfg-inactive-bg','cfg-inactive-color'].forEach(id => {
       document.getElementById(id).addEventListener('input', updatePreview);
     });
@@ -271,6 +285,7 @@
       try { config = JSON.parse(savedPayload); } catch (e) { config = {}; }
 
       document.getElementById('cfg-container-bg').value = config.containerBg || '#ffffff';
+      document.getElementById('cfg-font-family').value = config.fontFamily || 'Tableau Book';
       document.getElementById('cfg-active-bg').value = config.activeBg || '#E8622A';
       document.getElementById('cfg-active-color').value = config.activeColor || '#ffffff';
       document.getElementById('cfg-inactive-bg').value = config.inactiveBg || '#ffffff';

@@ -8,7 +8,8 @@ const DEFAULT_CONFIG = {
   inactiveBg: '#ffffff',
   inactiveColor: '#333333',
   radius: 50,
-  fontSize: 14,
+  fontSize: 12,
+  fontFamily: 'Tableau Book',
   gap: 6,
   padH: 18,
   padV: 6,
@@ -34,6 +35,7 @@ function applyButtonStyles(btn, isActive) {
   btn.style.color = isActive ? config.activeColor : config.inactiveColor;
   btn.style.borderRadius = config.radius + 'px';
   btn.style.fontSize = config.fontSize + 'px';
+  btn.style.fontFamily = config.fontFamily || 'Tableau Book';
   btn.style.padding = `${config.padV}px ${config.padH}px`;
 }
 
