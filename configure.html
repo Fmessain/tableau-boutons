@@ -194,6 +194,15 @@
     </div>
   </div>
 
+  <div class="section">
+    <div class="section-title">Copier / Coller la configuration</div>
+    <div class="row" style="gap:8px;">
+      <button id="btn-copy" style="flex:1;">Copier</button>
+      <button id="btn-paste" style="flex:1;">Coller</button>
+    </div>
+    <p id="clipboard-msg" style="font-size:11px;color:#888;min-height:14px;"></p>
+  </div>
+
   <div class="actions">
     <button id="btn-cancel">Annuler</button>
     <button id="btn-save" class="primary">Enregistrer</button>
@@ -290,6 +299,45 @@
         }
         updatePreview();
       });
+    });
+
+    const clipboardMsg = document.getElementById('clipboard-msg');
+
+    document.getElementById('btn-copy').addEventListener('click', async () => {
+      const styleOnly = { ...readConfig() };
+      delete styleOnly.paramName;
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(styleOnly));
+        clipboardMsg.textContent = 'Style copié dans le presse-papier.';
+      } catch (e) {
+        clipboardMsg.textContent = 'Erreur : presse-papier inaccessible.';
+      }
+    });
+
+    document.getElementById('btn-paste').addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        const pasted = JSON.parse(text);
+        const allowed = ['containerBg','activeBg','activeColor','inactiveBg','inactiveColor','radius','fontSize','gap','padH','padV'];
+        const isValid = allowed.some(k => k in pasted);
+        if (!isValid) { clipboardMsg.textContent = 'Contenu invalide.'; return; }
+
+        if (pasted.containerBg) document.getElementById('cfg-container-bg').value = pasted.containerBg;
+        if (pasted.activeBg) document.getElementById('cfg-active-bg').value = pasted.activeBg;
+        if (pasted.activeColor) document.getElementById('cfg-active-color').value = pasted.activeColor;
+        if (pasted.inactiveBg) document.getElementById('cfg-inactive-bg').value = pasted.inactiveBg;
+        if (pasted.inactiveColor) document.getElementById('cfg-inactive-color').value = pasted.inactiveColor;
+        if (pasted.radius != null) setRange('cfg-radius', 'cfg-radius-val', pasted.radius);
+        if (pasted.fontSize != null) setRange('cfg-font-size', 'cfg-font-size-val', pasted.fontSize);
+        if (pasted.gap != null) setRange('cfg-gap', 'cfg-gap-val', pasted.gap);
+        if (pasted.padH != null) setRange('cfg-pad-h', 'cfg-pad-h-val', pasted.padH);
+        if (pasted.padV != null) setRange('cfg-pad-v', 'cfg-pad-v-val', pasted.padV);
+
+        updatePreview();
+        clipboardMsg.textContent = 'Style collé. Cliquez Enregistrer pour appliquer.';
+      } catch (e) {
+        clipboardMsg.textContent = 'Erreur : presse-papier inaccessible ou contenu invalide.';
+      }
     });
 
     document.getElementById('btn-save').addEventListener('click', () => {
