@@ -5,6 +5,7 @@ const DEFAULT_CONFIG = {
   paramName: null,
   filterName: null,
   multiSelect: false,
+  filterRequired: false,
   containerBg: '#ffffff',
   activeBg: '#E8622A',
   activeColor: '#ffffff',
@@ -163,8 +164,12 @@ async function renderFilterButtons(dashboard) {
 
     btn.addEventListener('click', () => {
       if (config.multiSelect) {
-        if (selectedFilterValues.has(value)) selectedFilterValues.delete(value);
-        else selectedFilterValues.add(value);
+        if (selectedFilterValues.has(value)) {
+          if (config.filterRequired && selectedFilterValues.size === 1) return;
+          selectedFilterValues.delete(value);
+        } else {
+          selectedFilterValues.add(value);
+        }
       } else {
         selectedFilterValues = new Set([value]);
       }
