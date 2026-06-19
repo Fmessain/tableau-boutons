@@ -204,7 +204,6 @@ async function setupFilterListeners(dashboard) {
 async function initDisplay(dashboard) {
   if (config.mode === 'filter' && config.filterName) {
     await renderFilterButtons(dashboard);
-    await setupFilterListeners(dashboard);
   } else if (config.mode === 'param' && config.paramName) {
     await loadParam(dashboard, config.paramName);
     if (currentParam) {
