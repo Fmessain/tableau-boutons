@@ -87,6 +87,7 @@ let filterValues = [];
 let selectedFilterValues = new Set();
 let applyInProgress = false;
 let applyTimer = null;
+let filterDomainLoaded = false;
 
 async function getFilterOnSheets(dashboard, filterName) {
   const result = [];
@@ -133,26 +134,7 @@ async function applyFilterToSheets(values) {
   }
 }
 
-async function renderFilterButtons(dashboard) {
-  const group = document.getElementById('btn-group');
-  group.style.gap = config.gap + 'px';
-  document.body.style.background = config.containerBg || '#ffffff';
-
-  if (!config.filterName) return;
-
-  filterEntries = await getFilterOnSheets(dashboard, config.filterName);
-  if (filterEntries.length === 0) return;
-
-  filterValues = await getFilterDomainValues(filterEntries[0]);
-  if (filterValues.length === 0) return;
-
-  const f = filterEntries[0].filter;
-  if (f.isAllSelected) {
-    selectedFilterValues = new Set(filterValues);
-  } else {
-    selectedFilterValues = new Set(f.appliedValues.map(v => v.formattedValue));
-  }
-
+function buildFilterButtons(group) {
   group.innerHTML = '';
   filterValues.forEach(value => {
     const btn = document.createElement('button');
@@ -180,6 +162,43 @@ async function renderFilterButtons(dashboard) {
 
     group.appendChild(btn);
   });
+}
+
+async function renderFilterButtons(dashboard) {
+  const group = document.getElementById('btn-group');
+  group.style.gap = config.gap + 'px';
+  document.body.style.background = config.containerBg || '#ffffff';
+
+  if (!config.filterName) return;
+
+  filterEntries = await getFilterOnSheets(dashboard, config.filterName);
+  if (filterEntries.length === 0) return;
+
+  const f = filterEntries[0].filter;
+
+  if (!filterDomainLoaded) {
+    // Affichage immédiat avec les valeurs appliquées uniquement
+    const applied = f.isAllSelected ? [] : f.appliedValues.map(v => v.formattedValue);
+    selectedFilterValues = new Set(applied);
+    filterValues = applied;
+    if (applied.length > 0) buildFilterButtons(group);
+
+    // Chargement du domaine complet en arrière-plan
+    getFilterDomainValues(filterEntries[0]).then(values => {
+      filterValues = values;
+      filterDomainLoaded = true;
+      if (f.isAllSelected) selectedFilterValues = new Set(values);
+      buildFilterButtons(group);
+    });
+    return;
+  }
+
+  if (f.isAllSelected) {
+    selectedFilterValues = new Set(filterValues);
+  } else {
+    selectedFilterValues = new Set(f.appliedValues.map(v => v.formattedValue));
+  }
+  buildFilterButtons(group);
 }
 
 function clearFilterListeners() {
@@ -233,6 +252,8 @@ async function openConfigDialog(dashboard) {
         currentParam = null;
       }
       clearFilterListeners();
+      filterEntries = [];
+      filterDomainLoaded = false;
 
       await initDisplay(dashboard);
     }
