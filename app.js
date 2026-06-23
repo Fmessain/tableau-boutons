@@ -90,13 +90,14 @@ let applyTimer = null;
 let filterDomainLoaded = false;
 
 async function getFilterOnSheets(dashboard, filterName) {
-  const result = [];
-  for (const ws of dashboard.worksheets) {
-    const filters = await ws.getFiltersAsync();
-    const f = filters.find(f => f.fieldName === filterName);
-    if (f) result.push({ ws, filter: f });
-  }
-  return result;
+  const results = await Promise.all(
+    dashboard.worksheets.map(async ws => {
+      const filters = await ws.getFiltersAsync();
+      const f = filters.find(f => f.fieldName === filterName);
+      return f ? { ws, filter: f } : null;
+    })
+  );
+  return results.filter(Boolean);
 }
 
 async function getFilterDomainValues(filterEntry) {
